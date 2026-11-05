@@ -1,0 +1,950 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0D0C2C">
+<meta name="description" content="Iconic Investing investor portal: property cashflow, stamp duty, loan repayment and rental yield calculators.">
+<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Iconic Investing Portal</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: portal shell — navy tool rail on the left, working canvas on the right; Iconic Investing navy, antique gold, Inter + Roboto */
+:root{
+  --paper:#FBFAF6; --panel:#FFFFFF; --sunk:#F5F2E8; --line:#E4DFD0;
+  --ink:#181818; --muted:#5E5F6B;
+  --rail:#0D0C2C; --brand:#0D0C2C; --brand-ink:#FFFFFF; --brass:#9A6A1F; --gold:#B7832D; --gold-hi:#E0A44D; --brass-soft:#F5EAD3;
+  --pos:#1F7A4D; --pos-soft:#DDF0E5; --neg:#B23A2E; --neg-soft:#F6DFDB;
+  --loan:#9A99AE; --equity:rgba(183,131,45,.16);
+  --f-display:"Inter", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Roboto", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"Roboto Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0A0A1E; --panel:#13122F; --sunk:#1B1A3D; --line:#2A2950;
+  --ink:#ECEAF2; --muted:#A3A2B8;
+  --rail:#0D0C2C; --brand:#E0A44D; --brand-ink:#0D0C2C; --brass:#E0A44D; --gold:#B7832D; --gold-hi:#E0A44D; --brass-soft:#2C2418;
+  --pos:#5CC48D; --pos-soft:#17332A; --neg:#EE7A6C; --neg-soft:#3B201D;
+  --loan:#6E6D8A; --equity:rgba(224,164,77,.14); color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#0A0A1E; --panel:#13122F; --sunk:#1B1A3D; --line:#2A2950;
+  --ink:#ECEAF2; --muted:#A3A2B8;
+  --rail:#0D0C2C; --brand:#E0A44D; --brand-ink:#0D0C2C; --brass:#E0A44D; --gold:#B7832D; --gold-hi:#E0A44D; --brass-soft:#2C2418;
+  --pos:#5CC48D; --pos-soft:#17332A; --neg:#EE7A6C; --neg-soft:#3B201D;
+  --loan:#6E6D8A; --equity:rgba(224,164,77,.14); color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;font-weight:600;letter-spacing:-.02em}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+.app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}
+.rail{background:var(--rail);color:#FFFFFF;border-right:1px solid rgba(224,164,77,.18);padding-block:22px;padding-left:max(18px, env(safe-area-inset-left,0px));padding-right:18px;display:flex;flex-direction:column;gap:26px;position:sticky;top:0;height:100vh;overflow-y:auto}
+:root:not([data-theme="light"]) .rail{}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-logo{height:56px;width:auto;display:block;flex:none}
+.brand .sub{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#E0A44D;font-weight:500;padding-left:12px;border-left:1px solid rgba(255,255,255,.22);line-height:1.35}
+.rail h4{margin:0 0 8px;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.7;font-weight:600}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;color:inherit;text-decoration:none;opacity:.85;font-weight:500}
+.nav a:hover{opacity:1;background:rgba(255,255,255,.08)}
+.nav a[aria-current="page"]{opacity:1;background:rgba(224,164,77,.12);color:#E0A44D;box-shadow:inset 3px 0 0 #E0A44D}
+.nav svg{width:16px;height:16px;flex:none}
+.saved{display:flex;flex-direction:column;gap:6px}
+.saved .empty{font-size:12.5px;opacity:.7}
+.sv{display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:center;padding:8px 10px;border-radius:6px;background:rgba(255,255,255,.06);cursor:pointer;border:1px solid transparent;text-align:left}
+.sv:hover{background:rgba(255,255,255,.11)}
+.sv.on{border-color:#E0A44D}
+.sv .n{font-weight:600;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.sv .m{font-size:11.5px;opacity:.75;grid-column:1}
+.sv .x{grid-row:1/3;grid-column:2;background:none;border:0;color:inherit;opacity:.6;cursor:pointer;font-size:11.5px;padding:4px 6px;border-radius:4px}
+.sv .x:hover{opacity:1;background:rgba(255,255,255,.12)}
+.sv .x.arm{opacity:1;background:var(--neg);color:#fff}
+.rail .foot{margin-top:auto;font-size:11px;opacity:.65;line-height:1.45}
+
+main{min-width:0;padding-block:26px 48px;padding-left:max(16px, 28px);padding-right:max(16px, env(safe-area-inset-right,0px), 28px)}
+.view-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px 20px;margin-bottom:20px}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);font-weight:600}
+.view-head h1{font-size:clamp(24px,3.2vw,34px);margin-top:4px}
+.view-head p{margin:6px 0 0;color:var(--muted);max-width:62ch}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--panel);padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:500}
+.btn:hover{border-color:var(--gold)}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:#FFFFFF}
+.btn.primary:hover{background:var(--gold-hi);border-color:var(--gold-hi);color:#0D0C2C}
+.toast{font-size:12.5px;color:var(--pos);min-height:1em;align-self:center}
+
+.cf{display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr);gap:22px;align-items:start}
+.ledger{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.grp{padding:14px 16px 16px;border-top:1px solid var(--line)}
+.grp:first-child{border-top:0}
+.grp h3{font-family:var(--f-body);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:10px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+.fld{display:flex;flex-direction:column;gap:4px;min-width:0}
+.fld.wide{grid-column:1/-1}
+.lblrow{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.lbl{font-size:12px;color:var(--muted);font-weight:500}
+.auto{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--brass);font-weight:600;cursor:pointer}
+.auto input{margin:0;accent-color:var(--gold);width:12px;height:12px}
+.inp{display:flex;align-items:center;border:1px solid var(--line);border-radius:6px;background:var(--paper);overflow:hidden}
+.inp:focus-within{border-color:var(--gold)}
+.inp input,.fld select{border:0;background:transparent;padding:7px 8px;width:100%;min-width:0;font-family:var(--f-mono);font-size:13.5px;font-variant-numeric:tabular-nums}
+.inp input[type=text]{font-family:var(--f-body)}
+.inp input:focus,.fld select:focus{outline:none}
+.inp input[readonly]{color:var(--muted)}
+.inp .pre,.inp .suf{padding:0 8px;color:var(--muted);font-size:12px;font-family:var(--f-mono);white-space:nowrap}
+.inp .pre{padding-right:0}
+.fld select{border:1px solid var(--line);border-radius:6px;background:var(--paper);font-family:var(--f-body)}
+.fld select:focus{border-color:var(--gold)}
+.chk{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);grid-column:1/-1}
+.chk input{accent-color:var(--gold)}
+.hint{font-size:11.5px;color:var(--muted)}
+
+.results{display:flex;flex-direction:column;gap:18px;min-width:0}
+.verdict{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.v-main{padding:18px 20px;display:flex;flex-direction:column;gap:6px;border-right:1px solid var(--line)}
+.v-main .addr{font-weight:600;font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.v-main .big{font-family:var(--f-display);font-size:clamp(30px,4.2vw,44px);line-height:1.05;font-variant-numeric:tabular-nums}
+.v-main .big small{font-size:.42em;font-family:var(--f-body);color:var(--muted);font-weight:500}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.pill{font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--sunk);color:var(--muted)}
+.pill.pos{background:var(--pos-soft);color:var(--pos)}
+.pill.neg{background:var(--neg-soft);color:var(--neg)}
+.pill.gold{background:var(--brass-soft);color:var(--brass)}
+.v-stats{display:grid;grid-template-columns:1fr 1fr}
+.stat{padding:14px 16px;border-bottom:1px solid var(--line);border-left:1px solid var(--line);display:flex;flex-direction:column;gap:2px}
+.stat:nth-child(odd){border-left:0}
+.stat:nth-last-child(-n+2){border-bottom:0}
+.stat span{font-size:11px;color:var(--muted);letter-spacing:.04em}
+.stat b{font-family:var(--f-mono);font-weight:500;font-size:17px;font-variant-numeric:tabular-nums}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;min-width:0}
+.card h2{font-size:17px;margin-bottom:10px}
+.card .sub{color:var(--muted);font-size:12.5px;margin:-6px 0 10px}
+.stmt{display:flex;flex-direction:column}
+.stmt div{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px dashed var(--line)}
+.stmt div:last-child{border-bottom:0}
+.stmt .tot{border-bottom:0;border-top:1.5px solid var(--ink);font-weight:600;margin-top:2px;padding-top:7px}
+.stmt .tot + div{border-top:0}
+.stmt span:first-child{color:var(--muted)}
+.stmt .tot span:first-child{color:var(--ink)}
+.stmt .num.neg{color:var(--neg)} .stmt .num.pos{color:var(--pos)}
+
+.chart-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px 14px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
+svg.chart{width:100%;height:auto;display:block}
+svg.chart text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+svg.chart .grid{stroke:var(--line);stroke-width:1}
+
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:var(--panel);padding:5px 12px;cursor:pointer;font-size:12.5px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink)}
+.tablewrap{overflow-x:auto;margin-top:10px;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:820px}
+th,td{padding:7px 10px;text-align:right;white-space:nowrap}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;background:var(--sunk);position:sticky;top:0}
+td{font-family:var(--f-mono);font-variant-numeric:tabular-nums;border-top:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+td.neg{color:var(--neg)} td.pos{color:var(--pos)}
+tr.key td{background:color-mix(in srgb, var(--brass-soft) 45%, transparent)}
+
+.disclaim{font-size:11.5px;color:var(--muted);max-width:90ch;margin-top:26px;line-height:1.55}
+
+/* simple tools */
+.tool{display:grid;grid-template-columns:minmax(280px,360px) minmax(0,1fr);gap:22px;align-items:start}
+.bars{display:flex;flex-direction:column;gap:7px}
+.bar{display:grid;grid-template-columns:44px minmax(0,1fr) 90px;gap:10px;align-items:center;font-size:12.5px}
+.bar .track{height:14px;background:var(--sunk);border-radius:3px;overflow:hidden}
+.bar .fill{height:100%;background:var(--loan);border-radius:3px}
+.bar.on .fill{background:var(--gold)}
+.bar.on{font-weight:600}
+.bar .v{text-align:right}
+.hero-num{font-family:var(--f-display);font-size:clamp(30px,4vw,42px);line-height:1.1;font-variant-numeric:tabular-nums}
+
+/* ---------- Home ---------- */
+.home{display:flex;flex-direction:column;gap:40px}
+.h-hero{background:var(--rail);color:#FFFFFF;border-radius:14px;overflow:hidden;position:relative}
+.h-hero::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 55% 85% at 88% 50%,rgba(183,131,45,.20),transparent 70%),repeating-linear-gradient(90deg,rgba(224,164,77,.05) 0 1px,transparent 1px 72px)}
+.h-hero-in{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:36px;align-items:center;padding:clamp(24px,4vw,48px)}
+.h-hero .eyebrow{color:#E0A44D}
+.h-hero h1{font-size:clamp(28px,4vw,48px);line-height:1.08;font-weight:300;margin-top:8px}
+.h-hero h1 em{font-style:normal;font-weight:600;color:#E0A44D}
+.h-hero p.lead{font-size:16px;line-height:1.6;opacity:.86;max-width:56ch;margin:16px 0 0}
+.h-btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.h-btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:600;padding:10px 18px;border-radius:7px;border:1px solid #B7832D;font-size:14px}
+.h-btn.solid{background:#B7832D;color:#FFFFFF}
+.h-btn.solid:hover{background:#E0A44D;border-color:#E0A44D;color:#0D0C2C}
+.h-btn.ghost{color:#E0A44D}
+.h-btn.ghost:hover{background:rgba(224,164,77,.12)}
+.h-btn svg{width:15px;height:15px}
+.h-stmt{background:var(--panel);color:var(--ink);border-radius:12px;padding:18px 20px;box-shadow:0 24px 50px -24px rgba(0,0,0,.6)}
+.h-stmt .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.h-stmt .tag{font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--sunk);padding:3px 8px;border-radius:999px}
+.h-stmt .addr{font-weight:500;font-size:12.5px;color:var(--muted);margin-top:6px;overflow-wrap:anywhere}
+.h-stmt .big{font-family:var(--f-display);font-weight:600;font-size:34px;line-height:1.05;margin-top:6px;font-variant-numeric:tabular-nums}
+.h-stmt .big small{font-family:var(--f-body);font-size:13px;color:var(--muted);font-weight:400}
+.h-stmt .stmt{margin-top:10px}
+.h-stmt a{display:inline-block;margin-top:12px;font-size:13px;font-weight:600;color:var(--brass);text-decoration:none}
+.h-stmt a:hover{text-decoration:underline}
+.h-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px 20px;flex-wrap:wrap;margin-bottom:16px}
+.h-head h2{font-size:clamp(20px,2.4vw,26px);margin-top:4px}
+.h-head .more{font-weight:600;font-size:13.5px;color:var(--brass);text-decoration:none}
+.h-head .more:hover{text-decoration:underline}
+.h-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.h-tile{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;text-decoration:none;display:flex;flex-direction:column;gap:4px;transition:border-color .15s,transform .15s}
+.h-tile:hover{border-color:var(--gold);transform:translateY(-2px)}
+.h-tile svg{width:22px;height:22px;color:var(--gold);margin-bottom:8px}
+.h-tile b{font-family:var(--f-display);font-weight:600;font-size:16.5px}
+.h-tile span{color:var(--muted);font-size:13px}
+.h-tile .q{color:var(--ink);font-size:13px;margin-top:6px;font-style:italic}
+.h-tile .go{margin-top:auto;padding-top:10px;font-size:12.5px;font-weight:600;color:var(--brass)}
+.sample{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--line);padding:2px 8px;border-radius:999px;margin-left:8px;vertical-align:middle;font-family:var(--f-body)}
+.h-split{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:32px}
+.h-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;counter-reset:s}
+.h-steps li{counter-increment:s;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:6px;font-size:13.5px;color:var(--muted)}
+.h-steps li b{color:var(--ink);font-family:var(--f-display);font-weight:600;font-size:15px}
+.h-steps li::before{content:counter(s);font-family:var(--f-mono);font-size:12px;width:26px;height:26px;border-radius:50%;border:1px solid var(--gold);color:var(--brass);display:grid;place-items:center}
+.h-news{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.h-post{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+.h-post .art{aspect-ratio:16/7;max-width:100%;background:#0D0C2C;position:relative;overflow:hidden}
+.h-post .art svg{position:absolute;inset:0;width:100%;height:100%}
+.h-post .body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:5px}
+.h-post .meta{font-size:11.5px;color:var(--muted)}
+.h-post h3{font-size:15.5px;font-weight:600;line-height:1.3}
+.h-post p{margin:0;color:var(--muted);font-size:13px}
+.h-events{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.h-ev{display:grid;grid-template-columns:54px minmax(0,1fr);gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.h-date{border:1px solid var(--line);border-radius:8px;background:var(--panel);text-align:center;padding:5px 0;line-height:1.1}
+.h-date b{display:block;font-family:var(--f-display);font-weight:600;font-size:20px}
+.h-date small{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);font-weight:600}
+.h-ev h3{font-family:var(--f-body);font-size:14px;font-weight:500}
+.h-ev p{margin:2px 0 0;font-size:12.5px;color:var(--muted)}
+.chip{display:inline-block;font-size:10.5px;font-weight:600;padding:1px 8px;border-radius:999px;background:var(--brass-soft);color:var(--brass);margin-right:6px}
+.h-story{background:var(--rail);color:#FFFFFF;border-radius:14px;padding:clamp(22px,4vw,40px);display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:32px;align-items:center}
+.h-story .eyebrow{color:#E0A44D}
+.h-story h2{font-size:clamp(22px,3vw,32px);margin-top:6px;font-weight:600}
+.h-story p{opacity:.85;max-width:58ch;line-height:1.6}
+.h-story blockquote{margin:0;font-family:var(--f-display);font-weight:300;font-size:clamp(22px,2.8vw,32px);line-height:1.2;color:#E0A44D;border-left:3px solid #B7832D;padding-left:18px}
+.h-partners{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.h-partner{border:1px dashed var(--line);border-radius:10px;padding:18px 14px;text-align:center;background:var(--panel);display:flex;flex-direction:column;gap:3px;align-items:center}
+.h-partner .lg{width:42px;height:42px;border-radius:10px;background:var(--sunk);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;color:var(--brass);margin-bottom:6px}
+.h-partner b{font-size:14px}
+.h-partner span{font-size:12px;color:var(--muted)}
+@media (max-width:1100px){ .h-hero-in,.h-split,.h-story{grid-template-columns:minmax(0,1fr)} .h-stmt{max-width:460px} .h-tiles,.h-steps,.h-partners{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:560px){ .h-tiles,.h-steps,.h-partners,.h-news{grid-template-columns:minmax(0,1fr)} }
+@media (prefers-reduced-motion:reduce){ .h-tile{transition:none} .h-tile:hover{transform:none} }
+
+@media (max-width:1180px){ .cf,.tool{grid-template-columns:minmax(0,1fr)} }
+@media (max-width:900px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .rail{position:static;height:auto;flex-direction:column;gap:14px;padding-block:14px;padding-right:max(16px, env(safe-area-inset-right,0px));padding-left:max(16px, env(safe-area-inset-left,0px))}
+  .nav{flex-direction:row;overflow-x:auto;gap:4px}
+  .nav a{white-space:nowrap}
+  .rail .foot{display:none}
+  .saved{flex-direction:row;overflow-x:auto}
+  .sv{min-width:190px}
+  main{padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px));padding-block:20px 40px}
+}
+@media (max-width:640px){
+  .verdict,.two{grid-template-columns:minmax(0,1fr)}
+  .v-main{border-right:0;border-bottom:1px solid var(--line)}
+  .fields{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:no-preference){ .fill{transition:width .3s ease} }
+</style>
+
+<div class="app">
+  <aside class="rail">
+    <div class="brand">
+      <img class="brand-logo" src="data:image/webp;base64,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" alt="Iconic Investing" width="111" height="56"><span class="sub">Investor<br>portal</span>
+    </div>
+    <div>
+      <h4>Tools</h4>
+      <nav class="nav" id="nav">
+        <a href="#home" data-v="home"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 7.5L8 3l5.5 4.5"/><path d="M4 6.5V13h8V6.5"/></svg>Home</a>
+        <a href="#cashflow" data-v="cashflow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 13l4-4 3 2 5-6"/><path d="M10 5h4v4"/></svg>Cashflow &amp; growth</a>
+        <a href="#stamp-duty" data-v="stamp-duty"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2" width="11" height="12" rx="1.5"/><path d="M5 6h6M5 9h6M5 12h3"/></svg>Stamp duty</a>
+        <a href="#repayments" data-v="repayments"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v3l2 1.5"/></svg>Loan repayments</a>
+        <a href="#yield" data-v="yield"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 8l6-5 6 5"/><path d="M4 7v6h8V7"/><path d="M7 13v-3h2v3"/></svg>Rental yield</a>
+      </nav>
+    </div>
+    <div>
+      <h4>Saved properties</h4>
+      <div class="saved" id="saved"></div>
+    </div>
+    <p class="foot">Figures are estimates for general information. Confirm duty, LMI and tax with your broker and accountant.</p>
+  </aside>
+
+  <main>
+    <!-- HOME -->
+    <section id="v-home" data-view class="home">
+      <div class="h-hero"><div class="h-hero-in">
+        <div>
+          <div class="eyebrow">Property cashflow, made clear</div>
+          <h1>Know what a property <em>costs you each week</em> before you buy it.</h1>
+          <p class="lead">At Iconic Investing, our mission is to give every Australian investor the numbers a buyer's agent works from. Run rent, loan, expenses, depreciation and tax through one model, then see cashflow and equity year by year.</p>
+          <div class="h-btns">
+            <a class="h-btn solid" href="#cashflow">Run a cashflow <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+            <a class="h-btn ghost" href="#stamp-duty">Check stamp duty</a>
+          </div>
+        </div>
+        <div class="h-stmt" aria-label="Example cashflow result">
+          <div class="top"><span class="eyebrow">Year 1 after tax</span><span class="tag">Example</span></div>
+          <div class="addr" id="h-addr"></div>
+          <div class="big" id="h-week"></div>
+          <div class="stmt" id="h-stmt"></div>
+          <a href="#cashflow">Open this example in the calculator →</a>
+        </div>
+      </div></div>
+
+      <div>
+        <div class="h-head"><div><div class="eyebrow">Tools</div><h2>Pick a calculator</h2></div></div>
+        <div class="h-tiles">
+          <a class="h-tile" href="#cashflow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 19l6-6 4 3 8-9"/><path d="M15 7h6v6"/></svg><b>Cashflow &amp; growth</b><span>Weekly holding cost after tax and a 30-year forecast.</span><span class="q">"Can I afford to hold it?"</span><span class="go">Open tool →</span></a>
+          <a class="h-tile" href="#stamp-duty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><b>Stamp duty</b><span>Duty, registration fees and first home concessions, 2026–27.</span><span class="q">"What will it cost to buy?"</span><span class="go">Open tool →</span></a>
+          <a class="h-tile" href="#repayments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg><b>Loan repayments</b><span>Interest-only against principal and interest.</span><span class="q">"What are my repayments?"</span><span class="go">Open tool →</span></a>
+          <a class="h-tile" href="#yield"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 12l9-8 9 8"/><path d="M6 10v10h12V10"/><path d="M10 20v-5h4v5"/></svg><b>Rental yield</b><span>Gross and net yield after vacancy and expenses.</span><span class="q">"Is the rent good for the price?"</span><span class="go">Open tool →</span></a>
+        </div>
+      </div>
+
+      <div>
+        <div class="h-head"><div><div class="eyebrow">How it works</div><h2>From listing to decision in four steps</h2></div><a class="more" href="#cashflow">Start now →</a></div>
+        <ol class="h-steps">
+          <li><b>Enter the property</b>Type the address, price and rent. The state is picked up from the address.</li>
+          <li><b>Check the costs</b>Stamp duty, LMI and management fees fill in automatically. Override any of them.</li>
+          <li><b>Read the result</b>See weekly cashflow after tax, yield and the rent you need to break even.</li>
+          <li><b>Save and compare</b>Save each property and switch between them from the side menu.</li>
+        </ol>
+      </div>
+
+      <div class="h-split">
+        <div>
+          <div class="h-head"><div><div class="eyebrow">From the blog</div><h2>Latest insights <span class="sample">Sample</span></h2></div></div>
+          <div class="h-news">
+            <article class="h-post"><div class="art"><svg viewBox="0 0 400 175" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g fill="#E0A44D"><rect x="60" y="105" width="34" height="55"/><rect x="110" y="85" width="34" height="75"/><rect x="160" y="62" width="34" height="98"/><rect x="210" y="92" width="34" height="68" opacity=".55"/><rect x="260" y="48" width="34" height="112"/><rect x="310" y="30" width="34" height="130"/></g></svg></div><div class="body"><span class="meta">Guide · 6 min read</span><h3>Positive vs negative gearing: what the weekly number means</h3><p>How rent, interest and your tax bracket combine into one holding cost.</p></div></article>
+            <article class="h-post"><div class="art"><svg viewBox="0 0 400 175" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M0 140 C80 130 120 105 200 95 S320 50 400 30" fill="none" stroke="#E0A44D" stroke-width="5"/><path d="M0 155 C100 152 220 146 400 132" fill="none" stroke="#FFFFFF" stroke-opacity=".45" stroke-width="4" stroke-dasharray="10 8"/></svg></div><div class="body"><span class="meta">Explainer · 4 min</span><h3>Reading the equity chart</h3><p>Why the gap between value and loan is your borrowing power for the next purchase.</p></div></article>
+          </div>
+        </div>
+        <div>
+          <div class="h-head"><div><div class="eyebrow">Learn with us</div><h2>Upcoming events <span class="sample">Sample</span></h2></div></div>
+          <div class="h-events">
+            <div class="h-ev"><div class="h-date"><small>Nov</small><b>19</b></div><div><h3>Cashflow calculator walkthrough</h3><p><span class="chip">Webinar</span>7:00 pm AEST · Online</p></div></div>
+            <div class="h-ev"><div class="h-date"><small>Nov</small><b>27</b></div><div><h3>Investing in regional Queensland</h3><p><span class="chip">Seminar</span>6:30 pm · Brisbane CBD</p></div></div>
+            <div class="h-ev"><div class="h-date"><small>Dec</small><b>04</b></div><div><h3>End-of-year tax and depreciation Q&amp;A</h3><p><span class="chip">Live Q&amp;A</span>12:30 pm AEST · Online</p></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="h-story">
+        <div>
+          <div class="eyebrow">Why we built it</div>
+          <h2>Every deal starts with the cashflow.</h2>
+          <p>Iconic Investing helps everyday Australians buy investment property with their eyes open. This portal lets clients test a deal themselves, using the same inputs we use when we assess a property.</p>
+          <div class="h-btns"><a class="h-btn solid" href="#cashflow">Try it with your deal <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a></div>
+        </div>
+        <blockquote>"Buy the numbers, not the story."</blockquote>
+      </div>
+
+      <div>
+        <div class="h-head"><div><div class="eyebrow">Working together</div><h2>Our partners</h2></div></div>
+        <div class="h-partners">
+          <div class="h-partner"><div class="lg">MB</div><b>Mortgage broker</b><span>Add partner name</span></div>
+          <div class="h-partner"><div class="lg">TA</div><b>Tax accountant</b><span>Add partner name</span></div>
+          <div class="h-partner"><div class="lg">QS</div><b>Quantity surveyor</b><span>Add partner name</span></div>
+          <div class="h-partner"><div class="lg">PM</div><b>Property manager</b><span>Add partner name</span></div>
+        </div>
+      </div>
+      <p class="disclaim" style="margin-top:0">Figures are estimates for general information only and are not financial, tax or legal advice. Confirm stamp duty, LMI, lending and tax with your broker and accountant.</p>
+    </section>
+
+    <!-- CASHFLOW -->
+    <section id="v-cashflow" data-view hidden>
+      <div class="view-head">
+        <div>
+          <div class="eyebrow">Property analysis</div>
+          <h1>Cashflow &amp; capital growth</h1>
+          <p>Model a property's holding cost after tax, then project rent, value and equity year by year. Example figures are loaded; replace them with your deal.</p>
+        </div>
+        <div class="actions">
+          <span class="toast" id="toast" role="status"></span>
+          <button class="btn" id="b-new">New</button>
+          <button class="btn" id="b-copy">Copy summary</button>
+          <button class="btn primary" id="b-save">Save property</button>
+        </div>
+      </div>
+
+      <div class="cf">
+        <form class="ledger" id="ledger" autocomplete="off"></form>
+
+        <div class="results">
+          <div class="verdict">
+            <div class="v-main">
+              <div class="addr" id="r-addr"></div>
+              <div class="lbl">Year 1 cashflow after tax</div>
+              <div class="big" id="r-week"></div>
+              <div class="pills" id="r-pills"></div>
+            </div>
+            <div class="v-stats" id="r-stats"></div>
+          </div>
+
+          <div class="two">
+            <div class="card">
+              <h2>Year 1 cashflow</h2>
+              <div class="stmt" id="r-stmt"></div>
+            </div>
+            <div class="card">
+              <h2>Cash to buy</h2>
+              <div class="stmt" id="r-buy"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="chart-head">
+              <h2>Value, loan and equity</h2>
+              <div class="legend"><span><i style="background:var(--brand)"></i>Property value</span><span><i style="background:var(--loan)"></i>Loan balance</span><span><i style="background:var(--equity);height:10px"></i>Equity</span></div>
+            </div>
+            <svg class="chart" id="c-value" viewBox="0 0 680 260" role="img" aria-label="Property value and loan balance over time"></svg>
+          </div>
+
+          <div class="card">
+            <div class="chart-head">
+              <h2>Cashflow after tax, per year</h2>
+              <div class="legend"><span><i style="background:var(--pos)"></i>Money in</span><span><i style="background:var(--neg)"></i>Money out</span></div>
+            </div>
+            <svg class="chart" id="c-cash" viewBox="0 0 680 190" role="img" aria-label="Annual after-tax cashflow"></svg>
+          </div>
+
+          <div class="card">
+            <div class="chart-head">
+              <h2>Forecast compounding</h2>
+              <div class="seg" role="group" aria-label="Rows shown">
+                <button type="button" id="t-key" aria-pressed="true">Key years</button>
+                <button type="button" id="t-all" aria-pressed="false">All years</button>
+              </div>
+            </div>
+            <div class="tablewrap"><table id="r-table"></table></div>
+          </div>
+        </div>
+      </div>
+      <p class="disclaim">General information only, not financial, tax or credit advice. Stamp duty uses each state's general (investor) transfer duty scale at 2026–27 rates; owner-occupier and first home buyer concessions are in the Stamp duty tool. LMI is a rough estimate by LVR; your lender's quote will differ. Tax effect applies your marginal rate (including 2% Medicare levy) to the property's net income or loss after interest and depreciation. Growth rates are assumptions, not forecasts.</p>
+    </section>
+
+    <!-- STAMP DUTY -->
+    <section id="v-stamp-duty" data-view hidden>
+      <div class="view-head"><div><div class="eyebrow">Purchase costs</div><h1>Stamp duty &amp; government fees</h1><p>Transfer duty, land registration fees and first home buyer concessions for every state and territory, using 2026–27 rates.</p></div></div>
+      <div class="tool">
+        <div class="ledger"><div class="grp"><h3>Purchase</h3><div class="fields">
+          <div class="fld wide"><label class="lbl" for="sd-price">Purchase price</label><div class="inp"><span class="pre">$</span><input id="sd-price" type="number" step="1000" min="0" value="650000"></div></div>
+          <div class="fld wide"><label class="lbl" for="sd-state">State</label><select id="sd-state"></select></div>
+          <div class="fld"><label class="lbl" for="sd-use">Buying as</label><select id="sd-use"><option value="inv">Investor</option><option value="oo">Owner-occupier</option></select></div>
+          <div class="fld"><label class="lbl" for="sd-type">Property type</label><select id="sd-type"><option value="est">Established home</option><option value="new">New home</option><option value="land">Vacant land to build</option></select></div>
+          <label class="chk" for="sd-fhb"><input type="checkbox" id="sd-fhb"> First home buyer <span class="hint" id="sd-fhb-h"></span></label>
+        </div></div></div>
+        <div class="results">
+          <div class="two">
+            <div class="card"><div class="lbl" id="sd-label"></div><div class="hero-num" id="sd-out"></div><div class="hint" id="sd-eff"></div><div class="pills" id="sd-pills" style="margin-top:8px"></div></div>
+            <div class="card"><h2>Government costs</h2><div class="stmt" id="sd-stmt"></div></div>
+          </div>
+          <div class="card"><h2>Same purchase, every state</h2><p class="sub" id="sd-bars-sub"></p><div class="bars" id="sd-bars"></div></div>
+          <p class="disclaim" style="margin-top:4px">Rates and fees as at 1 July 2026, cross-checked against BOQ's stamp duty calculator. Concessions and grants have eligibility rules (residence, income, citizenship, contract dates) that this estimate does not test, and foreign purchaser surcharges are not included. Confirm with your conveyancer or state revenue office.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- REPAYMENTS -->
+    <section id="v-repayments" data-view hidden>
+      <div class="view-head"><div><div class="eyebrow">Finance</div><h1>Loan repayments</h1><p>Compare principal-and-interest with interest-only repayments, and see what the loan costs over its term.</p></div></div>
+      <div class="tool">
+        <div class="ledger"><div class="grp"><h3>Loan</h3><div class="fields">
+          <div class="fld wide"><label class="lbl" for="rp-loan">Loan amount</label><div class="inp"><span class="pre">$</span><input id="rp-loan" type="number" step="1000" value="520000"></div></div>
+          <div class="fld"><label class="lbl" for="rp-rate">Interest rate</label><div class="inp"><input id="rp-rate" type="number" step="0.01" value="6.19"><span class="suf">% p.a.</span></div></div>
+          <div class="fld"><label class="lbl" for="rp-term">Term</label><div class="inp"><input id="rp-term" type="number" step="1" value="30"><span class="suf">yrs</span></div></div>
+          <div class="fld wide"><label class="lbl" for="rp-freq">Repayment frequency</label><select id="rp-freq"><option value="12">Monthly</option><option value="26">Fortnightly</option><option value="52">Weekly</option></select></div>
+        </div></div></div>
+        <div class="results">
+          <div class="two">
+            <div class="card"><div class="lbl">Principal &amp; interest</div><div class="hero-num" id="rp-pi"></div><div class="hint" id="rp-pi-h"></div></div>
+            <div class="card"><div class="lbl">Interest only</div><div class="hero-num" id="rp-io"></div><div class="hint" id="rp-io-h"></div></div>
+          </div>
+          <div class="card"><h2>Balance over the term</h2><div class="stmt" id="rp-sched"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- YIELD -->
+    <section id="v-yield" data-view hidden>
+      <div class="view-head"><div><div class="eyebrow">Income</div><h1>Rental yield</h1><p>A quick read on gross and net yield before you run a full cashflow.</p></div></div>
+      <div class="tool">
+        <div class="ledger"><div class="grp"><h3>Property</h3><div class="fields">
+          <div class="fld wide"><label class="lbl" for="y-price">Purchase price</label><div class="inp"><span class="pre">$</span><input id="y-price" type="number" step="1000" value="650000"></div></div>
+          <div class="fld"><label class="lbl" for="y-rent">Rent</label><div class="inp"><span class="pre">$</span><input id="y-rent" type="number" step="5" value="600"><span class="suf">/wk</span></div></div>
+          <div class="fld"><label class="lbl" for="y-vac">Vacancy</label><div class="inp"><input id="y-vac" type="number" step="1" value="2"><span class="suf">wks</span></div></div>
+          <div class="fld wide"><label class="lbl" for="y-exp">Annual expenses (rates, insurance, management, maintenance)</label><div class="inp"><span class="pre">$</span><input id="y-exp" type="number" step="100" value="9200"></div></div>
+        </div></div></div>
+        <div class="results">
+          <div class="two">
+            <div class="card"><div class="lbl">Gross yield</div><div class="hero-num" id="y-g"></div><div class="hint" id="y-g-h"></div></div>
+            <div class="card"><div class="lbl">Net yield</div><div class="hero-num" id="y-n"></div><div class="hint" id="y-n-h"></div></div>
+          </div>
+          <div class="card"><h2>Reading the number</h2><div class="bars" id="y-bands"></div><p class="hint" style="margin-top:10px">Bands are a rough rule of thumb for Australian residential property. High-yield areas often trade off slower capital growth.</p></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+const AUD = new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD',maximumFractionDigits:0});
+const money = v => AUD.format(Math.round(v||0)).replace('-$','−$');
+const kmoney = v => { const a=Math.abs(v); const s=v<0?'−':''; return a>=1e6? s+'$'+(a/1e6).toFixed(a>=1e7?1:2)+'m' : a>=1e3? s+'$'+Math.round(a/1e3)+'k' : s+'$'+Math.round(a); };
+const pct = (v,d=2) => (isFinite(v)? (v*100).toFixed(d) : '0.00')+'%';
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- Stamp duty & government fees (rates as at 2026–27; cross-checked against BOQ/InfoChoice) ---------- */
+const STATES=['NSW','VIC','QLD','WA','SA','TAS','ACT','NT'];
+const STATE_NAMES={NSW:'New South Wales',VIC:'Victoria',QLD:'Queensland',WA:'Western Australia',SA:'South Australia',TAS:'Tasmania',ACT:'Australian Capital Territory',NT:'Northern Territory'};
+const SCALES={
+  NSW:[[0,0,.0125],[18000,225,.015],[38000,525,.0175],[103000,1662,.035],[387000,11602,.045],[1290000,52237,.055],[3870000,194137,.07]],
+  QLD:[[0,0,0],[5000,0,.015],[75000,1050,.035],[540000,17325,.045],[1000000,38025,.0575]],
+  QLD_HOME:[[0,0,.01],[350000,3500,.035],[540000,10150,.045],[1000000,30850,.0575]],
+  WA:[[0,0,.019],[120000,2280,.0285],[150000,3135,.038],[360000,11115,.0475],[725000,28453,.0515]],
+  SA:[[0,0,.01],[12000,120,.02],[30000,480,.03],[50000,1080,.035],[100000,2830,.04],[200000,6830,.0425],[250000,8955,.0475],[300000,11330,.05],[500000,21330,.055]],
+  TAS:[[0,50,0],[3000,50,.0175],[25000,435,.0225],[75000,1560,.035],[200000,5935,.04],[375000,12935,.0425],[725000,27810,.045]],
+  ACT:[[0,0,.012],[200000,2400,.022],[300000,4600,.034],[500000,11400,.0432],[750000,22200,.059],[1000000,36950,.064]],
+  ACT_OO:[[0,0,.0028],[260000,728,.022],[300000,1608,.034],[500000,8408,.0432],[750000,19208,.059],[1000000,33958,.064]]
+};
+function scale(b,v){let r=b[0];for(const x of b){if(v>=x[0])r=x;}return r[1]+(v-r[0])*r[2];}
+/* Duty is charged per $100 or part thereof, except VIC and NT which use exact formulas */
+const PER100=new Set(['NSW','QLD','WA','SA','TAS','ACT']);
+function dutiable(st,v){ v=Math.max(0,+v||0); return PER100.has(st)? Math.ceil(v/100)*100 : v; }
+/* General (investor) transfer duty — used by the cashflow model */
+function stampDuty(st,v){
+  v=dutiable(st,v);
+  if(st==='VIC'){ if(v>2000000) return 110000+(v-2000000)*.065; if(v>960000) return v*.055; if(v>130000) return 2870+(v-130000)*.06; if(v>25000) return 350+(v-25000)*.024; return v*.014; }
+  if(st==='NT'){ if(v<=525000){const V=v/1000;return .06571441*V*V+15*V;} if(v<3000000) return v*.0495; if(v<5000000) return v*.0575; return v*.0595; }
+  if(st==='ACT' && v>1455000) return v*.0454;
+  return SCALES[st]? scale(SCALES[st],v) : 0;
+}
+/* Duty after owner-occupier and first home buyer concessions */
+function dutyFor(st,v,o){
+  v=dutiable(st,v);
+  const oo=o.use==='oo', fhb=oo&&o.fhb, type=o.type||'est';
+  const general=stampDuty(st,v);
+  let d=general;
+  if(oo){
+    if(st==='VIC' && v>130000 && v<=550000) d = v<=440000? 2870+(v-130000)*.05 : 18370+(v-440000)*.06;
+    if(st==='QLD') d=scale(SCALES.QLD_HOME,v);
+    if(st==='ACT') d= v>1455000? v*.0454 : scale(SCALES.ACT_OO,v);
+  }
+  if(fhb){
+    if(st==='NSW'){
+      if(type==='land'){ if(v<=350000) d=0; else if(v<450000) d=(v-350000)*.14067; }
+      else { if(v<=800000) d=0; else if(v<1000000) d=stampDuty('NSW',1000000)*(v-800000)/200000; }
+    }
+    if(st==='VIC'){ if(v<=600000) d=0; else if(v<750000) d=general*(v-600000)/150000; }
+    if(st==='QLD'){
+      if(type!=='est') d=0;
+      else if(v<=700000) d=0;
+      else if(v<800000){ const c=17350-1735*Math.floor((v-700000)/10000); d=Math.max(0,d-Math.max(0,c)); }
+    }
+    if(st==='WA'){
+      if(type==='land'){ if(v<=350000) d=0; else if(v<450000) d=(v-350000)*.1539; }
+      else { if(v<=500000) d=0; else if(v<700000) d=(v-500000)*.1363; }
+    }
+    if(st==='SA' && type!=='est') d=0;
+    if(st==='NT' && type==='new') d=0;
+  }
+  return Math.max(0,d);
+}
+/* Land titles office fees */
+function govFees(st,v){
+  v=Math.max(0,+v||0);
+  let t=0,m=0;
+  switch(st){
+    case 'NSW': t=182.73; m=182.73; break;
+    case 'VIC': t=Math.min(3614,105+Math.ceil(v/1000)*2.34); m=129.20; break;
+    case 'QLD': t=248.04+(v>180000?46.56*Math.ceil((v-180000)/10000):0); m=248.04; break;
+    case 'WA':  t= v<=85000?225.10: v<=120000?235.10: v<=200000?255.10: 215.10+20*Math.ceil(v/100000); m=225.10; break;
+    case 'SA':  t= v<=50000? 353 : Math.min(11063,353+105*Math.ceil((v-50000)/10000)); m=204; break;
+    case 'TAS': t=256.76; m=167.58; break;
+    case 'ACT': t=496; m=184; break;
+    case 'NT':  t=181; m=181; break;
+  }
+  return {transfer:t,mortgage:m};
+}
+/* First Home Owner Grant (new homes / building), indicative */
+function fhogFor(st,v,o){
+  if(!(o.use==='oo'&&o.fhb) || o.type==='est') return 0;
+  const land=o.type==='land';
+  switch(st){
+    case 'NSW': return (land? v<=750000 : v<=600000)? 10000:0;
+    case 'VIC': return v<=750000? 10000:0;
+    case 'QLD': return v<=750000? 30000:0;
+    case 'WA':  return !land && v<=750000? 10000:0;
+    case 'SA':  return !land? 15000:0;
+    case 'TAS': return 20000;
+    case 'NT':  return !land? 50000:0;
+    default: return 0;
+  }
+}
+function purchaseCostsFor(st,v,o){
+  const general=stampDuty(st,v), duty=dutyFor(st,v,o), f=govFees(st,v), grant=fhogFor(st,v,o);
+  return {general,duty,saving:Math.max(0,general-duty),transfer:f.transfer,mortgage:f.mortgage,fees:duty+f.transfer+f.mortgage,grant};
+}
+function lmiEst(lvr,loan){ const r = lvr<=80?0: lvr<=85?.012: lvr<=88?.018: lvr<=90?.025: lvr<=92?.033: .04; return loan*r; }
+function detectState(addr){
+  const m=String(addr).toUpperCase().match(/\b(NSW|VIC|QLD|WA|SA|TAS|ACT|NT)\b/);
+  if(m) return m[1];
+  const pcs=String(addr).match(/\b\d{4}\b/g); if(!pcs) return null;
+  const p=+pcs[pcs.length-1];
+  if((p>=2600&&p<=2618)||(p>=2900&&p<=2920)||(p>=200&&p<=299)) return 'ACT';
+  if(p>=800&&p<=999) return 'NT';
+  return ({1:'NSW',2:'NSW',3:'VIC',4:'QLD',5:'SA',6:'WA',7:'TAS',8:'VIC',9:'QLD'})[String(p)[0]]||null;
+}
+
+/* ---------- Cashflow model ---------- */
+const DEFAULTS={
+  address:'Example: 14 Wattle Street, Toowoomba QLD 4350', price:620000, state:'QLD', purchaseCosts:2800,
+  dutyAuto:true, duty:0,
+  lvr:80, lmiAuto:true, lmi:0, lmiCap:true, rate:6.19, loanType:'IO', term:30,
+  rent:590, vacancy:2, rentGrowth:4,
+  council:2600, water:1100, insurance:1900, strata:0, pmPct:7.7, pmAuto:true, pm:0, maint:1500, landTax:0, expGrowth:3,
+  dep:6500, depDecline:6, taxRate:32, growth:6, horizon:20
+};
+const TAX_OPTS=[[0,'0% — up to $18,200'],[17,'17% — $18,201 to $45,000'],[32,'32% — $45,001 to $135,000'],[39,'39% — $135,001 to $190,000'],[47,'47% — over $190,000']];
+const GROUPS=[
+  {t:'Property',f:[
+    {k:'address',l:'Address',type:'text',wide:1},
+    {k:'price',l:'Purchase price',pre:'$',step:5000},
+    {k:'state',l:'State',type:'select',opts:STATES.map(s=>[s,s]),hint:'Picked up from the address'},
+    {k:'duty',l:'Stamp duty',pre:'$',auto:'dutyAuto',step:100},
+    {k:'purchaseCosts',l:'Legals & inspections',pre:'$',step:100}
+  ]},
+  {t:'Loan',f:[
+    {k:'lvr',l:'LVR',suf:'%',step:1},
+    {k:'rate',l:'Interest rate',suf:'% p.a.',step:.05},
+    {k:'lmi',l:'LMI',pre:'$',auto:'lmiAuto',step:100},
+    {k:'loanType',l:'Repayments',type:'select',opts:[['IO','Interest only'],['PI','Principal & interest']]},
+    {k:'lmiCap',l:'Add LMI to the loan',type:'check'},
+    {k:'term',l:'Loan term',suf:'yrs',step:1}
+  ]},
+  {t:'Rental income',f:[
+    {k:'rent',l:'Rent',pre:'$',suf:'/wk',step:5},
+    {k:'vacancy',l:'Vacancy',suf:'wks/yr',step:1},
+    {k:'rentGrowth',l:'Rent growth',suf:'% p.a.',step:.5}
+  ]},
+  {t:'Annual expenses',f:[
+    {k:'council',l:'Council rates',pre:'$',step:50},
+    {k:'water',l:'Water',pre:'$',step:50},
+    {k:'insurance',l:'Landlord insurance',pre:'$',step:50},
+    {k:'strata',l:'Strata / body corp',pre:'$',step:50},
+    {k:'pmPct',l:'Management fee',suf:'%',step:.1},
+    {k:'pm',l:'Management $',pre:'$',auto:'pmAuto',step:50},
+    {k:'maint',l:'Maintenance',pre:'$',step:50},
+    {k:'landTax',l:'Land tax',pre:'$',step:50},
+    {k:'expGrowth',l:'Expense growth',suf:'% p.a.',step:.5}
+  ]},
+  {t:'Tax & growth',f:[
+    {k:'taxRate',l:'Marginal tax rate (incl. Medicare)',type:'select',opts:TAX_OPTS,wide:1},
+    {k:'dep',l:'Depreciation, yr 1',pre:'$',step:100},
+    {k:'depDecline',l:'Depreciation decline',suf:'% p.a.',step:1},
+    {k:'growth',l:'Capital growth',suf:'% p.a.',step:.5},
+    {k:'horizon',l:'Forecast',type:'select',opts:[[10,'10 years'],[20,'20 years'],[30,'30 years']]}
+  ]}
+];
+const FIELDS=GROUPS.flatMap(g=>g.f);
+
+let S = {...DEFAULTS};
+let currentId=null, showAll=false;
+
+function fieldHTML(f){
+  const id='f-'+f.k;
+  if(f.type==='check') return `<label class="chk"><input type="checkbox" id="${id}"> ${f.l}</label>`;
+  const autoT = f.auto? `<label class="auto" title="Turn off to enter your own figure"><input type="checkbox" id="f-${f.auto}"> Auto</label>`:'';
+  const lab = `<div class="lblrow"><label class="lbl" for="${id}">${f.l}</label>${autoT}</div>`;
+  if(f.type==='select') return `<div class="fld${f.wide?' wide':''}">${lab}<select id="${id}">${f.opts.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join('')}</select></div>`;
+  const t = f.type==='text'?'text':'number';
+  return `<div class="fld${f.wide?' wide':''}">${lab}<div class="inp">${f.pre?`<span class="pre">${f.pre}</span>`:''}<input id="${id}" type="${t}" ${t==='number'?`step="${f.step||1}" inputmode="decimal"`:''}>${f.suf?`<span class="suf">${f.suf}</span>`:''}</div></div>`;
+}
+$('#ledger').innerHTML = GROUPS.map(g=>`<div class="grp"><h3>${g.t}</h3><div class="fields">${g.f.map(fieldHTML).join('')}</div></div>`).join('');
+
+const AUTOKEYS=['dutyAuto','lmiAuto','pmAuto'];
+function writeForm(){
+  FIELDS.forEach(f=>{const el=$('#f-'+f.k); if(!el) return; if(f.type==='check') el.checked=!!S[f.k]; else el.value=S[f.k];});
+  AUTOKEYS.forEach(k=>{$('#f-'+k).checked=!!S[k];});
+}
+function readForm(){
+  FIELDS.forEach(f=>{const el=$('#f-'+f.k); if(f.type==='check') S[f.k]=el.checked; else if(f.type==='text') S[f.k]=el.value; else if(f.type==='select') S[f.k]= isNaN(+el.value)? el.value : +el.value; else S[f.k]=parseFloat(el.value)||0;});
+  AUTOKEYS.forEach(k=>S[k]=$('#f-'+k).checked);
+}
+
+function calc(s){
+  const price=+s.price||0, H=+s.horizon||20;
+  const duty = s.dutyAuto? stampDuty(s.state,price) : +s.duty||0;
+  const baseLoan = price*(s.lvr/100);
+  const lmi = s.lmiAuto? lmiEst(s.lvr,baseLoan) : +s.lmi||0;
+  const loan = baseLoan + (s.lmiCap? lmi:0);
+  const deposit = price-baseLoan;
+  const cashIn = deposit + duty + (+s.purchaseCosts||0) + (s.lmiCap?0:lmi);
+  const r = s.rate/100, mr=r/12, n=Math.max(1,s.term)*12;
+  const pmt = s.loanType==='PI'? (mr>0? loan*mr/(1-Math.pow(1+mr,-n)) : loan/n) : 0;
+  const tax = s.taxRate/100, g=s.growth/100, rg=s.rentGrowth/100, eg=s.expGrowth/100;
+  const fixedExp = s.council+s.water+s.insurance+s.strata+s.maint+s.landTax;
+  let bal=loan, prevVal=price, cum=0, rows=[];
+  for(let y=1;y<=H;y++){
+    const value=price*Math.pow(1+g,y);
+    const rentWk=s.rent*Math.pow(1+rg,y-1);
+    const rentYr=rentWk*Math.max(0,52-s.vacancy);
+    const f=Math.pow(1+eg,y-1);
+    const pm = s.pmAuto? rentYr*s.pmPct/100 : s.pm*f;
+    const other=fixedExp*f, expenses=other+pm;
+    let interest=0, principal=0;
+    if(s.loanType==='PI'){ for(let m=0;m<12;m++){ if(bal<=0.01) break; const i=bal*mr; const p=Math.min(bal,pmt-i); interest+=i; principal+=p; bal-=p; } }
+    else interest=bal*r;
+    const depY=s.dep*Math.pow(1-s.depDecline/100,y-1);
+    const pre=rentYr-expenses-interest-principal;
+    const taxable=rentYr-expenses-interest-depY;
+    const taxEffect=-taxable*tax;
+    const post=pre+taxEffect;
+    cum+=post;
+    rows.push({y,value,rentWk,rentYr,expenses,pm,interest,principal,dep:depY,pre,taxable,taxEffect,post,capY:value-prevVal,acc:value-price,bal,equity:value-bal,cum});
+    prevVal=value;
+  }
+  const y1=rows[0];
+  const grossYield = price? s.rent*52/price : 0;
+  const netYield = price? (y1.rentYr-y1.expenses)/price : 0;
+  const breakEven = (()=>{ const wk=Math.max(1,52-s.vacancy); const fixed=fixedExp+(s.pmAuto?0:s.pm)+y1.interest+y1.principal; const share = s.pmAuto? (1-s.pmPct/100):1; return fixed/(wk*share); })();
+  return {duty,lmi,loan,baseLoan,deposit,cashIn,rows,y1,grossYield,netYield,breakEven,pmt,H};
+}
+
+/* ---------- Render ---------- */
+function render(){
+  const R=calc(S); const y1=R.y1, last=R.rows[R.rows.length-1];
+  // write back auto values
+  const setAuto=(k,ak,v)=>{const el=$('#f-'+k); el.readOnly=!!S[ak]; if(S[ak]){ el.value=Math.round(v); S[k]=Math.round(v);} };
+  setAuto('duty','dutyAuto',R.duty); setAuto('lmi','lmiAuto',R.lmi); setAuto('pm','pmAuto',y1.pm);
+  $('#f-term').closest('.fld').style.opacity = S.loanType==='PI'?1:.55;
+
+  $('#r-addr').textContent = S.address || 'Untitled property';
+  const wk=y1.post/52;
+  $('#r-week').innerHTML = `<span style="color:var(${wk>=0?'--pos':'--neg'})">${money(wk)}</span> <small>per week</small>`;
+  const pills=[];
+  pills.push(y1.pre>=0? ['pos','Positively geared'] : ['neg','Negatively geared']);
+  pills.push(y1.post>=0? ['pos','Cashflow positive after tax'] : ['neg',`Costs ${money(-y1.post)} a year after tax`]);
+  const yrEq = R.rows.find(r=>r.equity>=R.cashIn*2);
+  if(yrEq) pills.push(['gold',`Equity passes 2× cash in by year ${yrEq.y}`]);
+  $('#r-pills').innerHTML = pills.map(p=>`<span class="pill ${p[0]}">${p[1]}</span>`).join('');
+
+  const stats=[
+    ['Cash required',money(R.cashIn)],
+    ['Gross yield',pct(R.grossYield)],
+    ['Net yield',pct(R.netYield)],
+    ['Break-even rent',money(R.breakEven)+'/wk'],
+    [`Value, year ${R.H}`,kmoney(last.value)],
+    [`Equity, year ${R.H}`,kmoney(last.equity)]
+  ];
+  $('#r-stats').innerHTML = stats.map(s=>`<div class="stat"><span>${s[0]}</span><b>${s[1]}</b></div>`).join('');
+
+  const line=(l,v,cls='')=>`<div class="${cls}"><span>${l}</span><span class="num ${v<0?'neg':''}">${money(v)}</span></div>`;
+  $('#r-stmt').innerHTML =
+    line(`Rent (${Math.max(0,52-S.vacancy)} wks × ${money(S.rent)})`,y1.rentYr)+
+    line('Property expenses',-y1.expenses)+
+    line('Loan interest',-y1.interest)+
+    (S.loanType==='PI'? line('Principal repaid',-y1.principal):'')+
+    line('Cashflow before tax',y1.pre,'tot')+
+    line(`Tax ${y1.taxEffect>=0?'refund':'payable'} (incl. ${money(y1.dep)} depreciation)`,y1.taxEffect)+
+    line('Cashflow after tax',y1.post,'tot');
+  $('#r-buy').innerHTML =
+    line(`Deposit (${100-S.lvr}%)`,R.deposit)+
+    line(`Stamp duty (${S.state})`,R.duty)+
+    line('Legals & inspections',S.purchaseCosts)+
+    (S.lmiCap? `<div><span>LMI ${money(R.lmi)} added to loan</span><span class="num">$0</span></div>` : line('LMI',R.lmi))+
+    line('Total cash in',R.cashIn,'tot')+
+    `<div><span>Loan amount</span><span class="num">${money(R.loan)}</span></div>`;
+
+  drawValue(R); drawCash(R); drawTable(R);
+  lastCalc=R;
+}
+let lastCalc=null;
+
+function niceMax(v){ if(v<=0) return 1; const p=Math.pow(10,Math.floor(Math.log10(v))); const m=v/p; return (m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10)*p; }
+
+function drawValue(R){
+  const W=680,H=260,L=58,Rr=56,T=14,B=28, pw=W-L-Rr, ph=H-T-B;
+  const vals=[+S.price,...R.rows.map(r=>r.value)], loans=[R.loan,...R.rows.map(r=>r.bal)];
+  const max=niceMax(Math.max(...vals)), N=R.H;
+  const x=i=>L+pw*i/N, y=v=>T+ph*(1-v/max);
+  let g='';
+  for(let i=0;i<=4;i++){const v=max*i/4; g+=`<line class="grid" x1="${L}" x2="${W-Rr}" y1="${y(v)}" y2="${y(v)}"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">${kmoney(v)}</text>`;}
+  const step=N<=10?2:5;
+  for(let i=0;i<=N;i+=step) g+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle">Yr ${i}</text>`;
+  const vp=vals.map((v,i)=>`${x(i)},${y(v)}`), lp=loans.map((v,i)=>`${x(i)},${y(v)}`);
+  g+=`<polygon points="${vp.join(' ')} ${lp.slice().reverse().join(' ')}" fill="var(--equity)"/>`;
+  g+=`<polyline points="${lp.join(' ')}" fill="none" stroke="var(--loan)" stroke-width="2" stroke-dasharray="5 4"/>`;
+  g+=`<polyline points="${vp.join(' ')}" fill="none" stroke="var(--brand)" stroke-width="2.5" stroke-linejoin="round"/>`;
+  const ex=x(N), ey=y(vals[N]);
+  g+=`<circle cx="${ex}" cy="${ey}" r="4.5" fill="var(--brand)"/><text x="${ex+8}" y="${ey+4}" style="fill:var(--ink);font-weight:500">${kmoney(vals[N])}</text>`;
+  g+=`<text x="${ex+8}" y="${y(loans[N])+4}">${kmoney(loans[N])}</text>`;
+  $('#c-value').innerHTML=g;
+}
+function drawCash(R){
+  const W=680,H=190,L=58,Rr=16,T=12,B=26,pw=W-L-Rr,ph=H-T-B;
+  const v=R.rows.map(r=>r.post); let mx=Math.max(0,...v), mn=Math.min(0,...v);
+  const span=niceMax(Math.max(mx-mn,1));
+  if(mx<=0){mn=-span;mx=0;} else if(mn>=0){mx=span;mn=0;} else {const m=niceMax(Math.max(mx,-mn)); mx=m; mn=-m;}
+  const y=val=>T+ph*(mx-val)/(mx-mn), N=v.length, bw=pw/N;
+  let g='';
+  [mx,(mx+mn)/2,mn].forEach(t=>{g+=`<line class="grid" x1="${L}" x2="${W-Rr}" y1="${y(t)}" y2="${y(t)}"/><text x="${L-8}" y="${y(t)+4}" text-anchor="end">${kmoney(t)}</text>`;});
+  v.forEach((val,i)=>{const x0=L+i*bw+bw*.18, w=bw*.64, y0=y(Math.max(val,0)), h=Math.abs(y(val)-y(0));
+    g+=`<rect x="${x0}" y="${y0}" width="${w}" height="${Math.max(h,1)}" rx="2" fill="var(${val>=0?'--pos':'--neg'})"><title>Year ${i+1}: ${money(val)}</title></rect>`;
+    if((i+1)%(N<=10?2:5)===0||i===0) g+=`<text x="${x0+w/2}" y="${H-7}" text-anchor="middle">${i+1}</text>`;});
+  g+=`<line x1="${L}" x2="${W-Rr}" y1="${y(0)}" y2="${y(0)}" stroke="var(--ink)" stroke-width="1"/>`;
+  const turn=R.rows.find(r=>r.post>=0);
+  if(turn && R.rows[0].post<0){ const tx=L+(turn.y-1)*bw+bw/2; g+=`<text x="${Math.min(tx,W-90)}" y="${T+10}" text-anchor="middle" style="fill:var(--pos);font-weight:500">Positive from yr ${turn.y}</text>`;}
+  $('#c-cash').innerHTML=g;
+}
+function drawTable(R){
+  const keys=[1,5,10,15,20,25,30];
+  const rows = showAll? R.rows : R.rows.filter(r=>keys.includes(r.y));
+  const c=v=>`<td class="${v<0?'neg':''}">${money(v)}</td>`;
+  $('#r-table').innerHTML = `<thead><tr><th>Yr</th><th>Value</th><th>Rent/wk</th><th>Rent/yr</th><th>Cashflow pre-tax</th><th>Tax effect</th><th>Cashflow after tax/yr</th><th>Cap $/yr</th><th>Acc cap $</th><th>Loan</th><th>Equity</th></tr></thead><tbody>`+
+    rows.map(r=>`<tr class="${showAll&&keys.includes(r.y)?'key':''}"><td>${r.y}</td><td>${money(r.value)}</td><td>${money(r.rentWk)}</td><td>${money(r.rentYr)}</td>${c(r.pre)}${c(r.taxEffect)}${c(r.post)}<td>${money(r.capY)}</td><td>${money(r.acc)}</td><td>${money(r.bal)}</td><td>${money(r.equity)}</td></tr>`).join('')+'</tbody>';
+}
+
+/* ---------- Events ---------- */
+$('#ledger').addEventListener('input',e=>{
+  if(e.target.id==='f-address'){ const st=detectState(e.target.value); if(st){ $('#f-state').value=st; } }
+  // typing into an auto field switches it to manual
+  const map={'f-duty':'dutyAuto','f-lmi':'lmiAuto','f-pm':'pmAuto'};
+  if(map[e.target.id] && e.target.readOnly===false){}
+  readForm(); render();
+});
+$('#ledger').addEventListener('change',()=>{readForm();render();});
+$('#ledger').addEventListener('submit',e=>e.preventDefault());
+['f-duty','f-lmi','f-pm'].forEach(id=>{$('#'+id).addEventListener('focus',e=>{ if(e.target.readOnly) e.target.title='Untick Auto to enter your own figure'; });});
+
+$('#t-key').onclick=()=>{showAll=false;$('#t-key').setAttribute('aria-pressed','true');$('#t-all').setAttribute('aria-pressed','false');drawTable(lastCalc);};
+$('#t-all').onclick=()=>{showAll=true;$('#t-all').setAttribute('aria-pressed','true');$('#t-key').setAttribute('aria-pressed','false');drawTable(lastCalc);};
+
+let toastT; function toast(m){$('#toast').textContent=m;clearTimeout(toastT);toastT=setTimeout(()=>$('#toast').textContent='',2600);}
+
+/* ---------- Saved properties (this browser only) ---------- */
+const KEY='iconic-investing-properties';
+function loadSaved(){try{return JSON.parse(localStorage.getItem(KEY))||[];}catch(e){return [];}}
+function storeSaved(a){try{localStorage.setItem(KEY,JSON.stringify(a));return true;}catch(e){return false;}}
+function renderSaved(){
+  const list=loadSaved();
+  if(!list.length){$('#saved').innerHTML='<div class="empty">Save a property to keep it here on this device.</div>';return;}
+  $('#saved').innerHTML=list.map(p=>{const R=calc({...DEFAULTS,...p.inputs}); const w=R.y1.post/52;
+    return `<div class="sv ${p.id===currentId?'on':''}" data-id="${p.id}" role="button" tabindex="0"><span class="n">${esc(p.name)}</span><span class="m">${kmoney(p.inputs.price)} · ${money(w)}/wk after tax</span><button class="x" data-del="${p.id}" type="button" aria-label="Delete ${esc(p.name)}">Delete</button></div>`;}).join('');
+}
+$('#saved').addEventListener('click',e=>{
+  const del=e.target.closest('[data-del]');
+  if(del){ e.stopPropagation();
+    if(!del.classList.contains('arm')){ del.classList.add('arm'); del.textContent='Confirm'; setTimeout(()=>{if(del.isConnected){del.classList.remove('arm');del.textContent='Delete';}},3000); return; }
+    storeSaved(loadSaved().filter(p=>p.id!==del.dataset.del)); if(currentId===del.dataset.del){currentId=null;updateSaveLabel();} renderSaved(); toast('Deleted'); return; }
+  const it=e.target.closest('.sv'); if(!it) return;
+  const p=loadSaved().find(x=>x.id===it.dataset.id); if(!p) return;
+  S={...DEFAULTS,...p.inputs}; currentId=p.id; writeForm(); render(); renderSaved(); updateSaveLabel(); location.hash='cashflow'; toast('Loaded '+p.name);
+});
+$('#saved').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList.contains('sv'))e.target.click();});
+function updateSaveLabel(){$('#b-save').textContent=currentId?'Update property':'Save property';}
+$('#b-save').onclick=()=>{
+  readForm(); const list=loadSaved(); const name=(S.address||'Untitled property').split(',')[0].trim()||'Untitled property';
+  if(currentId){const p=list.find(x=>x.id===currentId); if(p){p.inputs={...S};p.name=name;p.savedAt=Date.now();}}
+  else { currentId='p'+Date.now().toString(36); list.unshift({id:currentId,name,inputs:{...S},savedAt:Date.now()}); }
+  toast(storeSaved(list)? (list.length&&currentId?'Saved':'Saved') : 'Could not save: this browser is blocking storage');
+  renderSaved(); updateSaveLabel();
+};
+$('#b-new').onclick=()=>{S={...DEFAULTS,address:'',price:600000,rent:550}; currentId=null; writeForm(); render(); renderSaved(); updateSaveLabel(); $('#f-address').focus(); toast('New property — enter the address');};
+$('#b-copy').onclick=()=>{
+  const R=lastCalc,y=R.y1,l=R.rows[R.rows.length-1];
+  const t=`${S.address||'Property'}\nPrice ${money(S.price)} · ${S.state} · LVR ${S.lvr}% @ ${S.rate}%\nCash required ${money(R.cashIn)} (duty ${money(R.duty)})\nRent ${money(S.rent)}/wk · Gross yield ${pct(R.grossYield)} · Net ${pct(R.netYield)}\nYear 1 cashflow: ${money(y.pre)} before tax, ${money(y.post)} after tax (${money(y.post/52)}/wk)\nYear ${R.H}: value ${money(l.value)}, equity ${money(l.equity)} at ${S.growth}% growth\n— Iconic Investing estimate, general information only`;
+  const done=()=>toast('Summary copied');
+  try{ navigator.clipboard.writeText(t).then(done,()=>fallback(t)); }catch(e){ fallback(t); }
+  function fallback(t){const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done();}catch(e){toast('Copy blocked — select the text manually');}ta.remove();}
+};
+
+/* ---------- Stamp duty tool ---------- */
+$('#sd-state').innerHTML=STATES.map(s=>`<option value="${s}">${STATE_NAMES[s]}</option>`).join('');
+$('#sd-state').value='QLD';
+const USE_NAMES={inv:'investor',oo:'owner-occupier'}, TYPE_NAMES={est:'established home',new:'new home',land:'vacant land'};
+function renderSD(){
+  const v=Math.max(0,+$('#sd-price').value||0), st=$('#sd-state').value, use=$('#sd-use').value, type=$('#sd-type').value;
+  const fhbBox=$('#sd-fhb'); fhbBox.disabled = use!=='oo'; if(use!=='oo') fhbBox.checked=false;
+  $('#sd-fhb-h').textContent = use!=='oo' ? '(owner-occupiers only)' : '';
+  const o={use,type,fhb:fhbBox.checked}, c=purchaseCostsFor(st,v,o);
+  $('#sd-label').textContent=`Transfer duty, ${STATE_NAMES[st]}`;
+  $('#sd-out').textContent=money(c.duty);
+  $('#sd-eff').textContent=`${pct(v?c.duty/v:0)} of the price${c.saving>0?` · general rate would be ${money(c.general)}`:''}`;
+  const pills=[`<span class="pill">${USE_NAMES[use]}</span>`,`<span class="pill">${TYPE_NAMES[type]}</span>`];
+  if(o.fhb) pills.push('<span class="pill gold">first home buyer</span>');
+  if(c.saving>0) pills.push(`<span class="pill pos">concession saves ${money(c.saving)}</span>`);
+  if(c.duty===0 && v>0) pills.push('<span class="pill pos">no duty payable</span>');
+  $('#sd-pills').innerHTML=pills.join('');
+  const row=(l,x,cls='')=>`<div class="${cls}"><span>${l}</span><span class="num">${money(x)}</span></div>`;
+  let h=row('Transfer duty',c.duty)+row('Transfer registration fee',c.transfer)+row('Mortgage registration fee',c.mortgage)+row('Total government costs',c.fees,'tot');
+  if(c.grant>0) h+=`<div><span>First Home Owner Grant (if eligible)</span><span class="num pos">+${money(c.grant)}</span></div>`+(c.grant>c.fees? `<div class="tot"><span>Grant left after these costs</span><span class="num pos">+${money(c.grant-c.fees)}</span></div>` : row('Net after grant',c.fees-c.grant,'tot'));
+  $('#sd-stmt').innerHTML=h;
+  $('#sd-bars-sub').textContent=`Transfer duty plus registration fees for a ${money(v)} ${TYPE_NAMES[type]}, bought as ${o.fhb?'a first home buyer':'an '+USE_NAMES[use]}.`;
+  const all=STATES.map(s=>[s,purchaseCostsFor(s,v,o).fees]); const mx=Math.max(...all.map(a=>a[1]),1);
+  $('#sd-bars').innerHTML=all.sort((a,b)=>a[1]-b[1]).map(a=>`<div class="bar ${a[0]===st?'on':''}"><span>${a[0]}</span><div class="track"><div class="fill" style="width:${(a[1]/mx*100).toFixed(1)}%"></div></div><span class="v num">${money(a[1])}</span></div>`).join('');
+}
+['#sd-price','#sd-state','#sd-use','#sd-type','#sd-fhb'].forEach(s=>{$(s).addEventListener('input',renderSD);$(s).addEventListener('change',renderSD);});
+
+/* ---------- Repayments tool ---------- */
+function renderRP(){
+  const L=+$('#rp-loan').value||0, r=(+$('#rp-rate').value||0)/100, n=Math.max(1,+$('#rp-term').value||30), f=+$('#rp-freq').value;
+  const pr=r/f, N=n*f, pay= pr>0? L*pr/(1-Math.pow(1+pr,-N)) : L/N;
+  const freqName={12:'month',26:'fortnight',52:'week'}[f];
+  $('#rp-pi').textContent=money(pay); $('#rp-pi-h').textContent=`per ${freqName} · total interest ${money(pay*N-L)} over ${n} years`;
+  const io=L*r/f; $('#rp-io').textContent=money(io); $('#rp-io-h').textContent=`per ${freqName} · ${money(pay-io)} less each ${freqName}, but no principal repaid`;
+  let bal=L, out=''; const marks=[1,5,10,15,20,25,30,35,40].filter(y=>y<=n); if(!marks.includes(n))marks.push(n);
+  for(let y=1;y<=n;y++){ for(let k=0;k<f;k++){ bal-= (pay-bal*pr); } if(marks.includes(y)) out+=`<div><span>After year ${y}</span><span class="num">${money(Math.max(0,bal))}</span></div>`; }
+  $('#rp-sched').innerHTML=out;
+}
+['#rp-loan','#rp-rate','#rp-term','#rp-freq'].forEach(s=>$(s).addEventListener('input',renderRP));
+
+/* ---------- Yield tool ---------- */
+function renderY(){
+  const p=+$('#y-price').value||0, rent=+$('#y-rent').value||0, vac=+$('#y-vac').value||0, ex=+$('#y-exp').value||0;
+  const gy=p?rent*52/p:0, ny=p?(rent*Math.max(0,52-vac)-ex)/p:0;
+  $('#y-g').textContent=pct(gy); $('#y-g-h').textContent=`${money(rent*52)} a year on ${money(p)}`;
+  $('#y-n').textContent=pct(ny); $('#y-n').style.color=`var(${ny>=0?'--ink':'--neg'})`; $('#y-n-h').textContent=`after ${vac} weeks vacancy and ${money(ex)} expenses`;
+  const bands=[['Under 3.5%','Growth-led, expect to top up',0,.035],['3.5% – 5%','Balanced',.035,.05],['5% – 6.5%','Strong income',.05,.065],['Over 6.5%','High yield, check growth and vacancy',.065,1]];
+  $('#y-bands').innerHTML=bands.map(b=>`<div class="bar ${gy>=b[2]&&gy<b[3]?'on':''}" style="grid-template-columns:90px minmax(0,1fr)"><span class="num">${b[0]}</span><span>${b[1]}${gy>=b[2]&&gy<b[3]?' ← this property':''}</span></div>`).join('');
+}
+['#y-price','#y-rent','#y-vac','#y-exp'].forEach(s=>$(s).addEventListener('input',renderY));
+
+/* ---------- Routing ---------- */
+function route(){
+  const v=(location.hash||'#home').slice(1); const ok=['home','cashflow','stamp-duty','repayments','yield'].includes(v)?v:'home';
+  document.querySelectorAll('[data-view]').forEach(s=>s.hidden = s.id!=='v-'+ok);
+  document.querySelectorAll('#nav a').forEach(a=>a.toggleAttribute('aria-current',a.dataset.v===ok)||a.setAttribute('aria-current', a.dataset.v===ok?'page':'false'));
+  document.querySelectorAll('#nav a').forEach(a=>{ if(a.dataset.v===ok) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
+}
+window.addEventListener('hashchange',()=>{route(); try{window.scrollTo(0,0);}catch(e){} const h=document.querySelector('#v-'+((location.hash||'#home').slice(1))+' h1'); if(h){h.setAttribute('tabindex','-1'); h.focus({preventScroll:true});}});
+
+function renderHome(){
+  const R=calc({...DEFAULTS}), y=R.y1, wk=y.post/52;
+  $('#h-addr').textContent=DEFAULTS.address.replace(/^Example:\s*/,'')+' · '+money(DEFAULTS.price);
+  $('#h-week').innerHTML=`<span style="color:var(${wk>=0?'--pos':'--neg'})">${money(wk)}</span><small> / week</small>`;
+  const l=(a,b,c='')=>`<div class="${c}"><span>${a}</span><span class="num ${b<0?'neg':'pos'}">${money(b)}</span></div>`;
+  $('#h-stmt').innerHTML=l(`Rent (${Math.max(0,52-DEFAULTS.vacancy)} wks × ${money(DEFAULTS.rent)})`,y.rentYr)+l('Property expenses',-y.expenses)+l(`Interest (${DEFAULTS.lvr}% LVR @ ${DEFAULTS.rate}%)`,-y.interest)+l('Tax effect incl. depreciation',y.taxEffect)+l('Net cashflow, year 1',y.post,'tot');
+}
+writeForm(); render(); renderSaved(); renderSD(); renderRP(); renderY(); renderHome(); route();
+})();
+</script>
+
+</body>
+</html>

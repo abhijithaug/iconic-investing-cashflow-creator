@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0D0C2C">
+<meta name="description" content="Iconic Investing Cashflow Creator: free property cashflow, stamp duty, loan repayment and rental yield calculators.">
+<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Iconic Investing Home</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: club-site structure in Iconic Investing's own brand: midnight navy bands, antique gold, Inter + Roboto */
+:root{
+  --paper:#FBFAF6; --panel:#FFFFFF; --sunk:#F5F2E8; --line:#E4DFD0;
+  --ink:#181818; --muted:#5E5F6B;
+  --brand:#0D0C2C; --brand-ink:#FFFFFF; --brand-2:#08081F;
+  --brass:#9A6A1F; --brass-hi:#E0A44D; --brass-mid:#B7832D; --brass-soft:#F5F2E8;
+  --pos:#1F7A4D; --neg:#B23A2E;
+  --f-display:"Inter","Segoe UI",system-ui,sans-serif;
+  --f-body:"Roboto","Segoe UI",system-ui,sans-serif;
+  --f-mono:"Roboto Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0A0A1E; --panel:#13122F; --sunk:#1B1A3D; --line:#2A2950;
+  --ink:#ECEAF2; --muted:#A3A2B8;
+  --brand:#0D0C2C; --brand-ink:#FFFFFF; --brand-2:#06061A;
+  --brass:#E0A44D; --brass-hi:#E0A44D; --brass-mid:#B7832D; --brass-soft:#2C2418;
+  --pos:#5CC48D; --neg:#EE7A6C; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#0A0A1E; --panel:#13122F; --sunk:#1B1A3D; --line:#2A2950;
+  --ink:#ECEAF2; --muted:#A3A2B8;
+  --brand:#0D0C2C; --brand-ink:#FFFFFF; --brand-2:#06061A;
+  --brass:#E0A44D; --brass-hi:#E0A44D; --brass-mid:#B7832D; --brass-soft:#2C2418;
+  --pos:#5CC48D; --neg:#EE7A6C; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--brand)}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:-.02em;text-wrap:balance;margin:0}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--brass-hi);outline-offset:3px;border-radius:3px}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:1160px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.eyebrow{font-size:11px;letter-spacing:.15em;text-transform:uppercase;font-weight:600;color:var(--brass)}
+.skip{position:absolute;left:-999px;top:8px;background:var(--brass-hi);color:#0D0C2C;padding:8px 12px;z-index:30;border-radius:4px}
+.skip:focus{left:max(16px,env(safe-area-inset-left,0px))}
+
+/* header */
+header{background:var(--brand);color:var(--brand-ink);position:sticky;top:env(safe-area-inset-top,0px);z-index:20;border-bottom:1px solid rgba(255,255,255,.08)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:12px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand-logo{height:52px;width:auto;display:block;flex:none}
+.brand .sub{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass-hi);font-weight:500;padding-left:12px;border-left:1px solid rgba(255,255,255,.22);line-height:1.3}
+nav ul{list-style:none;margin:0;padding:0;display:flex;gap:2px;flex-wrap:wrap}
+nav a{display:block;text-decoration:none;padding:7px 11px;border-radius:6px;font-weight:500;font-size:14px;opacity:.86}
+nav a:hover{opacity:1;background:rgba(255,255,255,.09)}
+nav a[aria-current="page"]{opacity:1;box-shadow:inset 0 -2px 0 var(--brass-hi)}
+nav a.cta{background:var(--brass-mid);color:#FFFFFF;opacity:1;font-weight:600;margin-left:6px}
+nav a.cta:hover{background:var(--brass-hi);color:#0D0C2C}
+.menu{display:none;background:none;border:1px solid rgba(255,255,255,.3);color:inherit;border-radius:6px;padding:7px 12px;font:inherit;font-weight:500;cursor:pointer}
+
+/* hero */
+.hero{background:var(--brand);color:var(--brand-ink);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:0;background:
+  radial-gradient(ellipse 60% 80% at 85% 50%,rgba(183,131,45,.16),transparent 70%),
+  repeating-linear-gradient(90deg,rgba(224,164,77,.05) 0 1px,transparent 1px 72px);pointer-events:none}
+.hero .wrap{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:48px;align-items:center;padding-block:64px 72px}
+.hero h1{font-size:clamp(32px,5vw,56px);line-height:1.06;font-weight:300}
+.hero h1 em{font-weight:600}
+.hero h1 em{font-style:normal;color:var(--brass-hi)}
+.hero p.lead{font-size:17px;max-width:56ch;opacity:.88;margin:18px 0 0}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:600;padding:11px 18px;border-radius:7px;border:1px solid transparent}
+.btn.gold{background:var(--brass-mid);color:#FFFFFF}
+.btn.gold:hover{background:var(--brass-hi);color:#0D0C2C}
+.btn.ghost{border-color:var(--brass-mid);color:var(--brass-hi)}
+.btn.ghost:hover{background:rgba(255,255,255,.08)}
+.btn svg{width:15px;height:15px}
+.note{font-size:12.5px;opacity:.68;margin-top:12px}
+
+/* sample statement card */
+.stmt{background:var(--panel);color:var(--ink);border-radius:12px;padding:20px 22px;box-shadow:0 24px 50px -24px rgba(0,0,0,.55);transform:rotate(1.2deg)}
+.stmt .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.stmt .tag{font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--sunk);padding:3px 8px;border-radius:999px}
+.stmt .addr{font-weight:600;font-size:13px;color:var(--muted);margin-top:6px}
+.stmt .big{font-family:var(--f-display);font-size:38px;line-height:1.05;margin-top:8px;color:var(--pos)}
+.stmt .big small{font-family:var(--f-body);font-size:14px;color:var(--muted);font-weight:500}
+.rows{margin-top:14px;display:flex;flex-direction:column}
+.rows div{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+.rows div span:first-child{color:var(--muted)}
+.rows .tot{border-bottom:0;border-top:1.5px solid var(--ink);margin-top:3px;padding-top:7px;font-weight:600}
+.rows .tot span:first-child{color:var(--ink)}
+.spark{display:block;width:100%;height:auto;margin-top:12px}
+.spark text{font-family:var(--f-mono);font-size:10px;fill:var(--muted)}
+
+/* quick tiles */
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:-34px;position:relative;z-index:2}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;text-decoration:none;display:flex;flex-direction:column;gap:4px;transition:border-color .15s,transform .15s}
+.tile:hover{border-color:var(--brass);transform:translateY(-2px)}
+.tile svg{width:22px;height:22px;color:var(--brass-mid);margin-bottom:8px}
+.tile b{font-family:var(--f-display);font-size:18px}
+.tile span{color:var(--muted);font-size:13.5px}
+.tile .go{margin-top:auto;padding-top:10px;font-size:12.5px;font-weight:600;color:var(--brass)}
+
+/* sections */
+section.blk{padding-block:64px 0}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px 20px;flex-wrap:wrap;margin-bottom:22px}
+.sec-head h2{font-size:clamp(24px,3vw,32px);margin-top:4px}
+.more{font-weight:600;font-size:14px;color:var(--brass);text-decoration:none;white-space:nowrap}
+.more:hover{text-decoration:underline}
+.sample{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--line);padding:2px 8px;border-radius:999px;margin-left:8px;vertical-align:middle}
+
+.split{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:40px}
+.news{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.post{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;text-decoration:none}
+.post:hover h3{color:var(--brass)}
+.post .art{aspect-ratio:16/8;max-width:100%;background:var(--brand);position:relative;overflow:hidden}
+.post .art svg{position:absolute;inset:0;width:100%;height:100%}
+.post .body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px}
+.post .meta{font-size:12px;color:var(--muted)}
+.post h3{font-size:17px;line-height:1.25}
+.post p{margin:0;color:var(--muted);font-size:14px}
+.post.wide{grid-column:1/-1;flex-direction:row}
+.post.wide .art{aspect-ratio:auto;flex:0 0 42%;min-height:170px}
+.post.wide .body{justify-content:center}
+
+.events{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.ev{display:grid;grid-template-columns:58px minmax(0,1fr);gap:14px;padding:14px 0;border-bottom:1px solid var(--line);text-decoration:none}
+.date{border:1px solid var(--line);border-radius:8px;background:var(--panel);text-align:center;padding:6px 0;line-height:1.1}
+.date b{display:block;font-family:var(--f-display);font-size:22px}
+.date small{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);font-weight:600}
+.ev h3{font-family:var(--f-body);font-size:15px;font-weight:600}
+.ev:hover h3{color:var(--brass)}
+.ev p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 8px;border-radius:999px;background:var(--brass-soft);color:var(--brass);margin-right:6px}
+
+/* story */
+.story{margin-top:64px;background:var(--brand-2);color:var(--brand-ink)}
+.story .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;padding-block:56px;align-items:center}
+.story h2{font-size:clamp(26px,3.4vw,38px)}
+.story p{opacity:.85;max-width:58ch}
+.story blockquote{margin:0;font-family:var(--f-display);font-size:clamp(24px,3vw,34px);line-height:1.15;color:var(--brass-hi);border-left:3px solid var(--brass-hi);padding-left:20px}
+.steps{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:10px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:baseline;counter-increment:s}
+.steps li::before{content:counter(s);font-family:var(--f-mono);font-size:12px;width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.35);display:grid;place-items:center}
+.btn.light{background:var(--brass-mid);color:#FFFFFF;margin-top:22px}
+.btn.light:hover{background:var(--brass-hi);color:#0D0C2C}
+
+/* partners */
+.partners{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.partner{border:1px dashed var(--line);border-radius:10px;padding:22px 16px;text-align:center;background:var(--panel);display:flex;flex-direction:column;gap:4px;align-items:center}
+.partner .logo{width:44px;height:44px;border-radius:10px;background:var(--sunk);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;color:var(--brass-mid);margin-bottom:6px}
+.partner b{font-size:14.5px}
+.partner span{font-size:12.5px;color:var(--muted)}
+
+/* footer */
+footer{margin-top:72px;background:var(--brand);color:var(--brand-ink)}
+footer .wrap{padding-block:36px 28px;display:grid;grid-template-columns:minmax(0,1.4fr) repeat(2,minmax(0,1fr));gap:28px}
+footer h4{margin:0 0 10px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.7}
+footer ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+footer a{text-decoration:none;opacity:.85} footer a:hover{opacity:1;text-decoration:underline}
+footer .disc{grid-column:1/-1;font-size:12px;opacity:.65;border-top:1px solid rgba(255,255,255,.12);padding-top:16px;max-width:110ch}
+footer p{margin:10px 0 0;opacity:.8;font-size:14px;max-width:42ch}
+
+@media (max-width:980px){
+  .hero .wrap,.split,.story .wrap{grid-template-columns:minmax(0,1fr)}
+  .stmt{transform:none;max-width:460px}
+  .tiles,.partners{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tiles{margin-top:24px}
+}
+@media (max-width:860px){
+  .menu{display:inline-block}
+  nav{display:none;width:100%}
+  nav.open{display:block}
+  .bar{flex-wrap:wrap}
+  nav ul{flex-direction:column;padding-bottom:8px}
+  nav a.cta{margin:6px 0 0;text-align:center}
+}
+@media (max-width:600px){
+  .news,.partners{grid-template-columns:minmax(0,1fr)}
+  .post.wide{flex-direction:column}
+  .post.wide .art{flex:none;aspect-ratio:16/8;min-height:0}
+  footer .wrap{grid-template-columns:minmax(0,1fr)}
+  .hero .wrap{padding-block:44px 48px}
+}
+@media (max-width:420px){ .tiles{grid-template-columns:minmax(0,1fr)} }
+@media (prefers-reduced-motion:reduce){ .tile{transition:none} .tile:hover{transform:none} }
+</style>
+
+<a class="skip" href="#main">Skip to main content</a>
+
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="#top" aria-label="Iconic Investing home">
+      <img class="brand-logo" src="data:image/webp;base64,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" alt="Iconic Investing" width="103" height="52"><span class="sub">Cashflow<br>Creator</span>
+    </a>
+    <button class="menu" id="menu" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav id="nav" aria-label="Main">
+      <ul>
+        <li><a href="#top" aria-current="page">Home</a></li>
+        <li><a href="#tools">Tools</a></li>
+        <li><a href="#insights">Insights</a></li>
+        <li><a href="#events">Events</a></li>
+        <li><a href="#story">About</a></li>
+        <li><a href="#partners">Partners</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a class="cta" href="https://iconiccalculator.netlify.app/#cashflow" target="_blank" rel="noopener">Open calculator</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" id="top">
+    <div class="wrap">
+      <div>
+        <div class="eyebrow" style="color:var(--brass-hi)">Property cashflow, made clear</div>
+        <h1>Know what a property <em>costs you each week</em> before you buy it.</h1>
+        <p class="lead">At Iconic Investing, our mission is to give every Australian investor the numbers a buyer's agent works from. Run rent, loan, expenses, depreciation and tax through one model, then see cashflow and equity year by year.</p>
+        <div class="btns">
+          <a class="btn gold" href="https://iconiccalculator.netlify.app/#cashflow" target="_blank" rel="noopener">Run a cashflow
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+          <a class="btn ghost" href="#events">Upcoming events</a>
+        </div>
+        <p class="note">The calculator opens in a new tab. Free to use, no sign-up.</p>
+      </div>
+
+      <figure class="stmt" aria-label="Example cashflow result" style="margin:0">
+        <div class="top"><span class="eyebrow">Year 1 after tax</span><span class="tag">Example</span></div>
+        <div class="addr">3-bed house · Toowoomba QLD · $620,000</div>
+        <div class="big num">+$42<small> / week</small></div>
+        <div class="rows">
+          <div><span>Rent ($560/wk, 2 wks vacant)</span><span class="num">$28,000</span></div>
+          <div><span>Interest (80% LVR @ 6.1%)</span><span class="num">−$30,256</span></div>
+          <div><span>Rates, insurance, fees</span><span class="num">−$6,890</span></div>
+          <div><span>Depreciation &amp; tax benefit</span><span class="num">+$11,330</span></div>
+          <div class="tot"><span>Net cashflow</span><span class="num">+$2,184</span></div>
+        </div>
+        <svg class="spark" viewBox="0 0 320 70" aria-hidden="true">
+          <line x1="0" y1="56" x2="320" y2="56" stroke="var(--line)"/>
+          <path d="M8 50 L72 44 L136 37 L200 29 L264 20 L312 12 L312 56 L8 56Z" fill="var(--brass-soft)"/>
+          <path d="M8 50 L72 44 L136 37 L200 29 L264 20 L312 12" fill="none" stroke="var(--brass)" stroke-width="2"/>
+          <circle cx="312" cy="12" r="3.5" fill="var(--brass)"/>
+          <text x="8" y="68">Yr 1</text><text x="268" y="68">Yr 10</text>
+          <text x="226" y="10">Equity</text>
+        </svg>
+      </figure>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="tiles" id="tools">
+      <a class="tile" href="https://iconiccalculator.netlify.app/#cashflow" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 19l6-6 4 3 8-9"/><path d="M15 7h6v6"/></svg>
+        <b>Cashflow &amp; growth</b><span>Weekly holding cost and 30-year forecast</span><span class="go">Open tool →</span></a>
+      <a class="tile" href="https://iconiccalculator.netlify.app/#stamp-duty" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+        <b>Stamp duty</b><span>Transfer duty for every state and territory</span><span class="go">Open tool →</span></a>
+      <a class="tile" href="https://iconiccalculator.netlify.app/#repayments" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg>
+        <b>Loan repayments</b><span>Interest-only vs principal &amp; interest</span><span class="go">Open tool →</span></a>
+      <a class="tile" href="https://iconiccalculator.netlify.app/#yield" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 12l9-8 9 8"/><path d="M6 10v10h12V10"/><path d="M10 20v-5h4v5"/></svg>
+        <b>Rental yield</b><span>Gross and net yield after vacancy</span><span class="go">Open tool →</span></a>
+    </div>
+  </div>
+
+  <section class="blk" aria-labelledby="h-news">
+    <div class="wrap split">
+      <div id="insights">
+        <div class="sec-head">
+          <div><div class="eyebrow">From the blog</div><h2 id="h-news">Latest insights <span class="sample">Sample</span></h2></div>
+          <a class="more" href="#insights">All insights →</a>
+        </div>
+        <div class="news">
+          <a class="post wide" href="#insights">
+            <div class="art"><svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="400" height="200" fill="var(--brand)"/><g fill="#E0A44D"><rect x="60" y="120" width="34" height="60"/><rect x="110" y="96" width="34" height="84"/><rect x="160" y="70" width="34" height="110"/><rect x="210" y="104" width="34" height="76" opacity=".55"/><rect x="260" y="54" width="34" height="126"/><rect x="310" y="36" width="34" height="144"/></g><line x1="40" y1="180" x2="370" y2="180" stroke="#fff" stroke-opacity=".3"/></svg></div>
+            <div class="body"><span class="meta">Guide · 6 min read</span><h3>Positive vs negative gearing: what the weekly number really means</h3><p>How rent, interest and your tax bracket combine into the one figure that decides whether you can hold a property long term.</p></div>
+          </a>
+          <a class="post" href="#insights">
+            <div class="art"><svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="400" height="200" fill="var(--brand)"/><path d="M0 160 C80 150 120 120 200 110 S320 60 400 40" fill="none" stroke="#E0A44D" stroke-width="5"/><path d="M0 175 C100 172 220 165 400 150" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="4" stroke-dasharray="10 8"/></svg></div>
+            <div class="body"><span class="meta">Explainer · 4 min</span><h3>Reading the equity chart</h3><p>Why the gap between value and loan is your borrowing power for the next purchase.</p></div>
+          </a>
+          <a class="post" href="#insights">
+            <div class="art"><svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="400" height="200" fill="var(--brand)"/><g fill="none" stroke="#E0A44D" stroke-width="4"><rect x="140" y="40" width="120" height="130" rx="8"/><path d="M165 80h70M165 110h70M165 140h40"/></g></svg></div>
+            <div class="body"><span class="meta">Checklist · 3 min</span><h3>Costs first-time investors forget</h3><p>Land tax, LMI, vacancy weeks and the maintenance buffer, with typical ranges.</p></div>
+          </a>
+        </div>
+      </div>
+
+      <div id="events">
+        <div class="sec-head">
+          <div><div class="eyebrow">Learn with us</div><h2>Upcoming events <span class="sample">Sample</span></h2></div>
+          <a class="more" href="#events">All events →</a>
+        </div>
+        <div class="events">
+          <a class="ev" href="#events"><div class="date"><small>Nov</small><b>19</b></div><div><h3>Cashflow calculator walkthrough</h3><p><span class="chip">Webinar</span>7:00 pm AEST · Online</p></div></a>
+          <a class="ev" href="#events"><div class="date"><small>Nov</small><b>27</b></div><div><h3>Investing in regional Queensland</h3><p><span class="chip">Seminar</span>6:30 pm · Brisbane CBD</p></div></a>
+          <a class="ev" href="#events"><div class="date"><small>Dec</small><b>04</b></div><div><h3>End-of-year tax and depreciation Q&amp;A</h3><p><span class="chip">Live Q&amp;A</span>12:30 pm AEST · Online</p></div></a>
+          <a class="ev" href="#events"><div class="date"><small>Dec</small><b>11</b></div><div><h3>Strategy session for first property</h3><p><span class="chip">1-on-1</span>Book a 30-minute slot</p></div></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="story" id="story" aria-labelledby="h-story">
+    <div class="wrap">
+      <div>
+        <div class="eyebrow" style="color:var(--brass-hi)">Why we built it</div>
+        <h2 id="h-story">Every deal starts with the cashflow.</h2>
+        <p>Iconic Investing helps everyday Australians buy investment property with their eyes open. We built Cashflow Creator so clients can test a deal themselves, using the same inputs we use when we assess a property.</p>
+        <ol class="steps">
+          <li>Enter the price, rent and loan for any address.</li>
+          <li>Check the after-tax weekly cashflow and yield.</li>
+          <li>Project value, rent and equity out to 30 years.</li>
+          <li>Save the property and compare it with others.</li>
+        </ol>
+        <a class="btn light" href="https://iconiccalculator.netlify.app/#cashflow" target="_blank" rel="noopener">Try it with your deal</a>
+      </div>
+      <blockquote>"Buy the numbers, not the story."</blockquote>
+    </div>
+  </section>
+
+  <section class="blk" id="partners" aria-labelledby="h-partners">
+    <div class="wrap">
+      <div class="sec-head">
+        <div><div class="eyebrow">Working together</div><h2 id="h-partners">Our partners</h2></div>
+        <a class="more" href="#contact">Become a partner →</a>
+      </div>
+      <p style="margin:-10px 0 20px;color:var(--muted);max-width:60ch">Thank you to the professionals who help our clients turn a good cashflow into a settled purchase.</p>
+      <div class="partners">
+        <div class="partner"><div class="logo">MB</div><b>Mortgage broker</b><span>Add partner name</span></div>
+        <div class="partner"><div class="logo">TA</div><b>Tax accountant</b><span>Add partner name</span></div>
+        <div class="partner"><div class="logo">QS</div><b>Quantity surveyor</b><span>Add partner name</span></div>
+        <div class="partner"><div class="logo">PM</div><b>Property manager</b><span>Add partner name</span></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="contact">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="#top"><img class="brand-logo" src="data:image/webp;base64,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" alt="Iconic Investing" width="103" height="52"><span class="sub">Cashflow<br>Creator</span></a>
+      <p>Questions about a property or the calculator? Visit iconicinvesting.com.au to get in touch.</p>
+    </div>
+    <div><h4>Tools</h4><ul>
+      <li><a href="https://iconiccalculator.netlify.app/#cashflow" target="_blank" rel="noopener">Cashflow &amp; growth</a></li>
+      <li><a href="https://iconiccalculator.netlify.app/#stamp-duty" target="_blank" rel="noopener">Stamp duty</a></li>
+      <li><a href="https://iconiccalculator.netlify.app/#repayments" target="_blank" rel="noopener">Loan repayments</a></li>
+      <li><a href="https://iconiccalculator.netlify.app/#yield" target="_blank" rel="noopener">Rental yield</a></li></ul></div>
+    <div><h4>Explore</h4><ul>
+      <li><a href="#insights">Insights</a></li><li><a href="#events">Events</a></li>
+      <li><a href="#story">About</a></li><li><a href="#partners">Partners</a></li>
+      <li><a href="https://iconicinvesting.com.au" target="_blank" rel="noopener">iconicinvesting.com.au</a></li></ul></div>
+    <p class="disc">Figures from Cashflow Creator are estimates for general information only and are not financial, tax or legal advice. Confirm stamp duty, LMI, lending and tax with your broker and accountant. © 2026 Iconic Investing.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var b=document.getElementById('menu'),n=document.getElementById('nav');
+  b.addEventListener('click',function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o)});
+  n.addEventListener('click',function(e){if(e.target.tagName==='A'){n.classList.remove('open');b.setAttribute('aria-expanded','false')}});
+})();
+</script>
+
+</body>
+</html>
